@@ -60,6 +60,12 @@ return [
             'report' => false,
         ],
 
+        'data' => [
+          'driver' => 'local',
+          'root' => resource_path('data'),
+          'throw' => false,
+      ],
+
     ],
 
     /*
