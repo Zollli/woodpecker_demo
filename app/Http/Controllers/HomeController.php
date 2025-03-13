@@ -15,18 +15,22 @@ class HomeController extends Controller
     // $recipes = Recipe::getAll()->toArray();
     // dd($recipes[0]['ingredients']);
 
-    $json_path = Storage::disk('data')->get('data.json');
-    $config_decoded = json_decode($json_path, true);
-    dd($config_decoded);
+    // $json_path = Storage::disk('data')->get('data.json');
+    // $config_decoded = json_decode($json_path, true);
+    // dd($config_decoded);
 
-    return view('main.index');
+
+    $salesRevenue = self::getSalesRevenue();
+
+    return view('main.index', [
+        'salesRevenue' => $salesRevenue
+    ]);
   }
 
   public function migrate(){
 
     $json_path = Storage::disk('data')->get('data.json');
     $json_decoded = json_decode($json_path, true);
-
 
     foreach ($json_decoded as $key=>$record) {
       if($key == 'recipes'){
@@ -68,4 +72,20 @@ class HomeController extends Controller
     }
 
   }
+
+  public function getSalesRevenue(){
+
+    $result = 0;
+    $salesOfLastWeek = Sale::getAll()->toArray();
+    $recipes = Recipe::getAll()->toArray();
+    foreach ( $salesOfLastWeek as $key => $value) {
+        $recipe = Recipe::getRecord('name',$value['name'])->toArray()[0];
+        $price = intval($recipe['price']);
+        $amount = intval($value['amount']);
+        $result += $price * $amount;
+    }
+
+    return $result;
+  }
+
 }
