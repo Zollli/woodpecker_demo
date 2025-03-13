@@ -17,19 +17,22 @@ return new class extends Migration
             $table->string('price');
             $table->boolean('lactoseFree');
             $table->boolean('glutenFree');
-            $table->string('ingredients');
+            $table->string('ingredients',1000);
+            $table->timestamps();
         });
 
         Schema::create('inventory', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('amount');
+            $table->timestamps();
         });
 
         Schema::create('salesOfLastWeek', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('amount');
+            $table->timestamps();
         });
 
         Schema::create('wholesalePrices', function (Blueprint $table) {
@@ -37,6 +40,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('amount');
             $table->string('price');
+            $table->timestamps();
         });
 
     }
