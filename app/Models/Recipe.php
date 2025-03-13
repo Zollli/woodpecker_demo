@@ -23,4 +23,8 @@ class Recipe extends Model
 	{
 		return Recipe::where($column,$value)->get();
 	}
+
+    static function getGlutenAndLactoseFree(){
+        return Recipe::where('glutenFree','1')->where('lactoseFree','1')->get();
+    }
 }

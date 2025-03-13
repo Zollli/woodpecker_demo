@@ -5,3 +5,4 @@ use App\Http\Controllers\HomeController;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/migrate', [HomeController::class, 'migrate']);
+Route::get('/list', [HomeController::class, 'showRecipes']);

@@ -88,4 +88,17 @@ class HomeController extends Controller
     return $result;
   }
 
+  public function showRecipes(){
+
+    $glutenFree = Recipe::getRecord('glutenFree','1')->toArray();
+    $lastoseFree = Recipe::getRecord('lactoseFree','1')->toArray();
+    $glutenAndLactoseFree = Recipe::getGlutenAndLactoseFree()->toArray();
+
+    return view('recipes.list', [
+        'glutenFree' => $glutenFree,
+        'lastoseFree' => $lastoseFree,
+        'glutenAndLactoseFree' => $glutenAndLactoseFree
+    ]);
+}
+
 }
