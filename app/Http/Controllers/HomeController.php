@@ -142,6 +142,44 @@ class HomeController extends Controller
 
   public function maxCapacity(){
 
+    $recipes = Recipe::getAll()->toArray();
+    $inventory = Inventory::getAll()->toArray();
+    $inventoryChangeUnit = [];
+    $maxCapacity = [];
+
+    foreach ($inventory as $item) {
+      if (str_contains($item['amount'], 'pc')) {
+        $inventoryChangeUnit[$item['name']] = intval($item['amount']);
+      }else{
+        $inventoryChangeUnit[$item['name']] = intval($item['amount']) * 1000;
+      }
+    }
+
+
+    // dd($recipes);
+    foreach ($recipes as $recipe) {
+
+      foreach ($recipe['ingredients'] as $ingredient) {
+        $maxCapacity[$recipe['name']][] = $inventoryChangeUnit[$ingredient['name']] / intval($ingredient['amount']);
+        // dd($ingredient);
+      }
+      // dd($recipe);
+    }
+
+
+    foreach ($maxCapacity as $key => $value) {
+        $maxCapacity[$key]['min'] =  intval(min($value));
+        // dd(max($value));
+        // dd(intval(max($value)));
+    }
+
+
+
+
+
+    return view('maxcapacity.index', [
+        'maxCapacity' => $maxCapacity
+      ]);
   }
 
 }
