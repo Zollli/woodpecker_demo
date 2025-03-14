@@ -95,10 +95,53 @@ class HomeController extends Controller
     $glutenAndLactoseFree = Recipe::getGlutenAndLactoseFree()->toArray();
 
     return view('recipes.list', [
-        'glutenFree' => $glutenFree,
-        'lastoseFree' => $lastoseFree,
-        'glutenAndLactoseFree' => $glutenAndLactoseFree
+      'glutenFree' => $glutenFree,
+      'lastoseFree' => $lastoseFree,
+      'glutenAndLactoseFree' => $glutenAndLactoseFree
     ]);
-}
+  }
+
+  public function showLastWeekProfit(){
+
+    $wholeSaleUnitPrice = [];
+    $ingredientPrice = [];
+    $total = 0;
+    $wholeSalePrice = Wholesale::getall()->toArray();
+    $recipes = Recipe::getAll()->toArray();
+    $salesOfLastWeek = Sale::getAll()->toArray();
+    $salesRevenue = self::getSalesRevenue();
+
+
+    foreach ($wholeSalePrice as $item) {
+      if (str_contains($item['amount'], 'pc')) {
+        $quantity = intval($item['amount']);
+      }else{
+        $quantity = intval($item['amount']) * 1000;
+      }
+      $price = intval($item['price']);
+      $wholeSaleUnitPrice[$item['name']] = $price / $quantity;
+    }
+
+    foreach ($recipes as $recipe) {
+      $totalRecipePrice = 0;
+      foreach ($recipe['ingredients'] as $ingredient) {
+        $totalRecipePrice += $wholeSaleUnitPrice[$ingredient['name']] * intval($ingredient['amount']);
+      }
+      $ingredientPrice[$recipe['name']] = $totalRecipePrice;
+    }
+
+    foreach ($salesOfLastWeek as $sale) {
+      $total += $ingredientPrice[$sale['name']] * intval($sale['amount']);
+    }
+
+    $profit = $salesRevenue - $total;
+    return view('profit.index', [
+      'profit' => $profit
+    ]);
+  }
+
+  public function maxCapacity(){
+
+  }
 
 }
