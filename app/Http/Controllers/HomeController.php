@@ -155,31 +155,64 @@ class HomeController extends Controller
       }
     }
 
-
-    // dd($recipes);
     foreach ($recipes as $recipe) {
 
       foreach ($recipe['ingredients'] as $ingredient) {
         $maxCapacity[$recipe['name']][] = $inventoryChangeUnit[$ingredient['name']] / intval($ingredient['amount']);
-        // dd($ingredient);
       }
-      // dd($recipe);
     }
 
 
     foreach ($maxCapacity as $key => $value) {
         $maxCapacity[$key]['min'] =  intval(min($value));
-        // dd(max($value));
-        // dd(intval(max($value)));
     }
-
-
-
-
 
     return view('maxcapacity.index', [
         'maxCapacity' => $maxCapacity
       ]);
+  }
+
+  public function nextOrderProfit(){
+
+    $order = config('order.nextorder');
+    $wholeSaleUnitPrice = [];
+    $ingredientPrice = [];
+    $total = 0;
+    $wholeSalePrice = Wholesale::getall()->toArray();
+    $recipes = Recipe::getAll()->toArray();
+    $salesOfLastWeek = Sale::getAll()->toArray();
+    $salesRevenue = self::getSalesRevenue();
+
+
+    foreach ($wholeSalePrice as $item) {
+      if (str_contains($item['amount'], 'pc')) {
+        $quantity = intval($item['amount']);
+      }else{
+        $quantity = intval($item['amount']) * 1000;
+      }
+      $price = intval($item['price']);
+      $wholeSaleUnitPrice[$item['name']] = $price / $quantity;
+    }
+
+    foreach ($recipes as $recipe) {
+      $totalRecipePrice = 0;
+      foreach ($recipe['ingredients'] as $ingredient) {
+        $totalRecipePrice += $wholeSaleUnitPrice[$ingredient['name']] * intval($ingredient['amount']);
+      }
+      $ingredientPrice[$recipe['name']] = $totalRecipePrice;
+    }
+
+    foreach ($order as $sale) {
+      $total += $ingredientPrice[$sale['name']] * intval($sale['amount']);
+    }
+
+    $profit = $salesRevenue - $total;
+
+    return view('profit.nextorderprofit', [
+      'profit' => intval($profit),
+      'salesRevenue' => $salesRevenue
+    ]);
+
   }
 
 }

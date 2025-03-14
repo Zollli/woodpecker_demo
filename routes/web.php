@@ -8,3 +8,4 @@ Route::get('/migrate', [HomeController::class, 'migrate']);
 Route::get('/list', [HomeController::class, 'showRecipes']);
 Route::get('/lastweekprofit', [HomeController::class, 'showLastWeekProfit']);
 Route::get('/maxcapacity', [HomeController::class, 'maxCapacity']);
+Route::get('/nextorderprofit', [HomeController::class, 'nextOrderProfit']);
