@@ -12,14 +12,6 @@ class HomeController extends Controller
 
   public function index(){
 
-    // $recipes = Recipe::getAll()->toArray();
-    // dd($recipes[0]['ingredients']);
-
-    // $json_path = Storage::disk('data')->get('data.json');
-    // $config_decoded = json_decode($json_path, true);
-    // dd($config_decoded);
-
-
     $salesRevenue = self::getSalesRevenue();
 
     return view('main.index', [
@@ -75,21 +67,6 @@ class HomeController extends Controller
 
   }
 
-  public function getSalesRevenue(){
-
-    $result = 0;
-    $salesOfLastWeek = Sale::getAll()->toArray();
-    $recipes = Recipe::getAll()->toArray();
-    foreach ( $salesOfLastWeek as $key => $value) {
-        $recipe = Recipe::getRecord('name',$value['name'])->toArray()[0];
-        $price = intval($recipe['price']);
-        $amount = intval($value['amount']);
-        $result += $price * $amount;
-    }
-
-    return $result;
-  }
-
   public function showRecipes(){
 
     $glutenFree = Recipe::getRecord('glutenFree','1')->toArray();
@@ -105,38 +82,10 @@ class HomeController extends Controller
 
   public function showLastWeekProfit(){
 
-    $wholeSaleUnitPrice = [];
-    $ingredientPrice = [];
-    $total = 0;
-    $wholeSalePrice = Wholesale::getall()->toArray();
-    $recipes = Recipe::getAll()->toArray();
     $salesOfLastWeek = Sale::getAll()->toArray();
     $salesRevenue = self::getSalesRevenue();
+    $profit = self::getProfit($salesOfLastWeek,$salesRevenue);
 
-
-    foreach ($wholeSalePrice as $item) {
-      if (str_contains($item['amount'], 'pc')) {
-        $quantity = intval($item['amount']);
-      }else{
-        $quantity = intval($item['amount']) * 1000;
-      }
-      $price = intval($item['price']);
-      $wholeSaleUnitPrice[$item['name']] = $price / $quantity;
-    }
-
-    foreach ($recipes as $recipe) {
-      $totalRecipePrice = 0;
-      foreach ($recipe['ingredients'] as $ingredient) {
-        $totalRecipePrice += $wholeSaleUnitPrice[$ingredient['name']] * intval($ingredient['amount']);
-      }
-      $ingredientPrice[$recipe['name']] = $totalRecipePrice;
-    }
-
-    foreach ($salesOfLastWeek as $sale) {
-      $total += $ingredientPrice[$sale['name']] * intval($sale['amount']);
-    }
-
-    $profit = $salesRevenue - $total;
     return view('profit.index', [
       'profit' => $profit
     ]);
@@ -177,14 +126,37 @@ class HomeController extends Controller
   public function nextOrderProfit(){
 
     $order = config('order.nextorder');
+    $salesRevenue = self::getSalesRevenue();
+    $profit = self::getProfit($order,$salesRevenue);
+
+    return view('profit.nextorderprofit', [
+      'profit' => $profit,
+      'salesRevenue' => $salesRevenue,
+      'order' => $order
+    ]);
+
+  }
+
+  private function getSalesRevenue(){
+
+    $result = 0;
+    $salesOfLastWeek = Sale::getAll()->toArray();
+    $recipes = Recipe::getAll()->toArray();
+    foreach ( $salesOfLastWeek as $key => $value) {
+        $recipe = Recipe::getRecord('name',$value['name'])->toArray()[0];
+        $price = intval($recipe['price']);
+        $amount = intval($value['amount']);
+        $result += $price * $amount;
+    }
+    return $result;
+  }
+
+  private function getProfit($order,$salesRevenue){
     $wholeSaleUnitPrice = [];
     $ingredientPrice = [];
     $total = 0;
     $wholeSalePrice = Wholesale::getall()->toArray();
     $recipes = Recipe::getAll()->toArray();
-    $salesOfLastWeek = Sale::getAll()->toArray();
-    $salesRevenue = self::getSalesRevenue();
-
 
     foreach ($wholeSalePrice as $item) {
       if (str_contains($item['amount'], 'pc')) {
@@ -208,14 +180,7 @@ class HomeController extends Controller
       $total += $ingredientPrice[$sale['name']] * intval($sale['amount']);
     }
 
-    $profit = $salesRevenue - $total;
-
-    return view('profit.nextorderprofit', [
-      'profit' => intval($profit),
-      'salesRevenue' => $salesRevenue,
-      'order' => $order
-    ]);
-
+    return intval($salesRevenue - $total);
   }
 
 }
