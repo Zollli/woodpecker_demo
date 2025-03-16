@@ -71,6 +71,8 @@ class HomeController extends Controller
       }
     }
 
+    return redirect('/');
+
   }
 
   public function getSalesRevenue(){
