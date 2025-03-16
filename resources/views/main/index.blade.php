@@ -2,8 +2,8 @@
 @section('content')
 
   <div class="mainContainer">
-    <div class="row m-auto">
-      <div class="col-12 pl-5 mt-4">
+    <div class="row m-auto pl-5 pt-4">
+      <div class="col-12">
         <h2 class="mb-0">Az utolsó hét árbevétele:</h2>
         <p>{{$salesRevenue}} Ft</p>
       </div>

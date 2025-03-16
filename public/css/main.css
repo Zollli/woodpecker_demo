@@ -3,6 +3,11 @@
   max-width: 1366px;
 }
 
+.mainContainer ul{
+    padding: 0;
+    list-style: none;
+}
+
 header ul {
   display: flex;
   list-style: none;
